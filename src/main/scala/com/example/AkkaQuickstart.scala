@@ -67,6 +67,7 @@ object GreeterMain {
 //#greeter-main
 
 //#main-class
+/*
 object AkkaQuickstart extends App {
   //#actor-system
   val greeterMain: ActorSystem[GreeterMain.SayHello] = ActorSystem(GreeterMain(), "AkkaQuickStart")
@@ -76,5 +77,6 @@ object AkkaQuickstart extends App {
   greeterMain ! SayHello("Charles")
   //#main-send-messages
 }
+*/
 //#main-class
 //#full-example
