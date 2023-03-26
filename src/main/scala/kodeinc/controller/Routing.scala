@@ -82,10 +82,21 @@ class Routing( implicit val executionContext: ExecutionContext) {
         }
 
         ,
-        path("show" / Segment) { itemId =>
-          get {
-            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Wondes</h1>"))
-          }
+        post {
+
+          path("create" ) {
+            entity(as[Store]) { store =>
+
+             val saved:Future[Done] =  create(store)
+              onSuccess(saved) {
+                case Done =>  complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Done</h1>"))
+              }
+
+
+             }
+
+            }
+
         }
       )
 
