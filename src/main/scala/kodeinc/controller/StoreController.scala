@@ -1,14 +1,25 @@
 package kodeinc.controller
 
-import akka.actor.typed.scaladsl.Behaviors
-import akka.http.javadsl.server.Route
-import akka.http.scaladsl._
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives._
-import akka.http.javadsl.server.Route
+import scala.concurrent.{ExecutionContext, Future}
 
-class StoreController {
+
+public class StoreController( implicit val executionContext: ExecutionContext) {
+
+  case class Store(id:Long,name:String,description:String)
+
+  var stores:List[Store] = Nil
+
+  def get(id:Long): Future[Option[Store]] = Future{
+      stores.find(x=>x.id == id)
+
+  }
 
 }
+
+
+
+
+
+
 
 

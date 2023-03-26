@@ -4,32 +4,40 @@ import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{RequestContext, Route}
 
-class Routing {
+import scala.concurrent.ExecutionContext
+
+class Routing( implicit val executionContext: ExecutionContext) {
 
 
-   def getRoutes = {
-    val itemRoutes: Route =
+  case class store(id: Long, name: String, description: String)
 
 
+
+  def getRoutes =
+     concat(
+       pathPrefix("strore")(storeRoute),
+       pathPrefix("movers")(storeRoute)
+     )
+
+
+
+
+
+  private def storeRoute =
       concat(
-        path("listing") {
-          get {
-            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+        get{
+          path("get" / LongNumber) {   id =>
+            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Wondes</h1>"))
           }
         }
+
         ,
         path("show" / Segment) { itemId =>
           get {
-            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
+            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Wondes</h1>"))
           }
         }
       )
-    itemRoutes
-  }
-
 
 }
 
-object  Routing extends Routing{
-  def apply(): Route = new Routing().getRoutes
-}

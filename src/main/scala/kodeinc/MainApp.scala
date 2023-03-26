@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import kodeinc.controller.StoreController
+import kodeinc.controller.{Routing, StoreController}
 
 import scala.io.StdIn
 
@@ -20,14 +20,7 @@ object MainApp {
     // needed for the future flatMap/onComplete in the end
     implicit val executionContext = system.executionContext
 
-
-    val itemRoutes: Route = getRoutes
-
-
-    val route: Route = {
-      pathPrefix("items")(itemRoutes)
-
-    }
+    val route: Route = new Routing().getRoutes
 
     /*path("/"){
     get{
@@ -49,24 +42,4 @@ object MainApp {
 
   }
 
-
-  private def getRoutes = {
-    val itemRoutes: Route =
-
-
-      concat(
-        path("listing") {
-          get {
-            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
-          }
-        }
-        ,
-        path("show" / Segment) { itemId =>
-          get {
-            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>Say hello to akka-http</h1>"))
-          }
-        }
-      )
-    itemRoutes
-  }
 }
