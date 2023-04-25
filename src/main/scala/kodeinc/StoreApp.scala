@@ -1,7 +1,12 @@
 package kodeinc
 
+import akka.actor.typed.scaladsl.AskPattern.Askable
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Directives
+import akka.http.scaladsl.server.Directives.complete
+import kodeinc.StoreApp.StoreService.GetById
 
 import java.util.UUID
 
@@ -15,7 +20,7 @@ object StoreApp {
     sealed trait StoreMessage
     case class Create(store:Vector[Store]) extends StoreMessage
     case class GetByName(name:String) extends StoreMessage
-    case class GetById(id:UUID) extends  StoreMessage
+    case class GetById(replyT:ActorRef[Storage], id:UUID) extends  StoreMessage
     case class Delete(id:UUID) extends  StoreMessage
 
     case class list(replyTo:ActorRef[Storage]) extends   StoreMessage
@@ -37,13 +42,13 @@ object StoreApp {
           Storage(Stores.filter(x=>x.name==name))
           Behaviors.same
         }
-        case GetById(id) => {
-          Storage(Stores.filter(x => x.id == id))
+        case GetById(replyTo,id)=> {
+          replyTo !  Storage(Stores.filter(x => x.id == id))
           Behaviors.same
 
         }
         case Delete(id) => {
-          Storage(Stores.filter(x => x.id != id)))
+          Storage(Stores.filter(x => x.id != id))
           Behaviors.same
         }
       }
@@ -51,8 +56,26 @@ object StoreApp {
 
     }
   }
+
+
   def main(args: Array[String]): Unit = {
+
+    implicit val system: ActorSystem[StoreService.StoreMessage] = ActorSystem(StoreService(), "Blame")
     //define the main entry..
+    val auction: ActorRef[StoreService.StoreMessage] = system
+    val route = Directives.path("store"){
+      Directives.concat{
+        Directives.get {
+         // system ! "sesee"
+          auction.ask(GetById(UUID.randomUUID()))
+          complete(???)
+        }
+      }
+
+    }
+
+
+    val binding = Http().newServerAt("localhost",9000).bind(route)
     println("Plain and Simple")
   }
 }
