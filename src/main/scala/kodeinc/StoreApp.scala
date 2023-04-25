@@ -1,6 +1,6 @@
 package kodeinc
 
-import akka.actor.typed.{ActorSystem, Behavior}
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 
 import java.util.UUID
@@ -18,28 +18,32 @@ object StoreApp {
     case class GetById(id:UUID) extends  StoreMessage
     case class Delete(id:UUID) extends  StoreMessage
 
-    case class RespnseMessage(message:) extends  StoreMessage
+    case class list(replyTo:ActorRef[Storage]) extends   StoreMessage
+    case class RespnseMessage(message:String) extends  StoreMessage
 
 
-    var stores:List[Store] = Nil
+    case class Storage(stores:List[Store])
+
+    var Stores:List[Store] = Nil
 
     def apply():Behavior[StoreMessage] = Behaviors.receive { (context, message) =>
       message match {
         case Create(newStore) => {
-          newStore :: stores
+          context.log.info("bessed king")
+          newStore :: Stores
           Behaviors.same
         }
         case GetByName(name) => {
-        val storeList= stores.filter(x=>x.name==name)
+          Storage(Stores.filter(x=>x.name==name))
           Behaviors.same
         }
         case GetById(id) => {
-          val storeList = stores.filter(x => x.id == id)
+          Storage(Stores.filter(x => x.id == id))
           Behaviors.same
 
         }
         case Delete(id) => {
-          stores = stores.filter(x => x.id != id)
+          Storage(Stores.filter(x => x.id != id)))
           Behaviors.same
         }
       }
