@@ -1,12 +1,12 @@
 package kodeinc
 
-import akka.actor.typed.scaladsl.AskPattern.Askable
+import akka.actor.typed.scaladsl.AskPattern.{Askable, schedulerFromActorSystem}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives
 import akka.http.scaladsl.server.Directives.complete
-import kodeinc.StoreApp.StoreService.GetById
+import kodeinc.StoreApp.StoreService.{GetById, Storage, StoreMessage}
 
 import java.util.UUID
 
@@ -20,14 +20,16 @@ object StoreApp {
     sealed trait StoreMessage
     case class Create(store:Vector[Store]) extends StoreMessage
     case class GetByName(name:String) extends StoreMessage
-    case class GetById(replyT:ActorRef[Storage], id:UUID) extends  StoreMessage
+    case class GetById(replyT:ActorRef[StoreMessage], id:UUID) extends  StoreMessage
     case class Delete(id:UUID) extends  StoreMessage
 
-    case class list(replyTo:ActorRef[Storage]) extends   StoreMessage
+    case class list(replyTo:ActorRef[StoreMessage]) extends   StoreMessage
     case class RespnseMessage(message:String) extends  StoreMessage
 
 
+
     case class Storage(stores:List[Store])
+
 
     var Stores:List[Store] = Nil
 
@@ -67,7 +69,7 @@ object StoreApp {
       Directives.concat{
         Directives.get {
          // system ! "sesee"
-          auction.ask(GetById(UUID.randomUUID()))
+          auction.ask(GetById(ActorRef[StoreMessage],UUID.randomUUID()))
           complete(???)
         }
       }
