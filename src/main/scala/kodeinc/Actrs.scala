@@ -49,11 +49,11 @@ object  Appli{
 
   }
 
+  final case class SayHello(name: String)//behavior..
 
   object CustomDispatchersExample {
     object HelloWorldMain {
 
-      final case class SayHello(name: String)
 
       //#hello-world-main-with-dispatchers
       def apply(): Behavior[SayHello] =
@@ -61,7 +61,7 @@ object  Appli{
           val dispatcherPath = "akka.actor.default-blocking-io-dispatcher"
 
           val props = DispatcherSelector.fromConfig(dispatcherPath)
-          val greeter = context.spawn(HelloWorld(), "greeter", props)
+          val greeter = context.spawn(HelloWorld(), "greeter")
 
           Behaviors.receiveMessage { message =>
             val replyTo = context.spawn(HelloworldBot(max = 3), message.name)
@@ -74,15 +74,15 @@ object  Appli{
     }
   }
 
-
+  //spawn ..
   def main(args: Array[String]): Unit = {
     ///println(calc.add(calc.add(12, 76), 334))
 
-    val system: ActorSystem[HelloWorldMain.SayHello] =
+    val system: ActorSystem[SayHello] =
       ActorSystem(HelloWorldMain(), "hello")
 
-    system tell(HelloWorldMain.SayHello("Mobrtd")  )
-    system tell(HelloWorldMain.SayHello("Mukisa")  )
+    system tell(SayHello("Mobrtd")  )
+    system tell(SayHello("Mukisa")  )
 
     //system ! HelloWorld.Greet("World"  )
     //system ! HelloWorldMain.SayHello("Akka")
