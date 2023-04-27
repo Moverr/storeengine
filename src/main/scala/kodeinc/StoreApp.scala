@@ -45,7 +45,7 @@ object StoreApp {
           Behaviors.same
         }
         case GetById(replyTo,id)=> {
-          replyTo !  Storage(Stores.filter(x => x.id == id))
+        //  replyTo !  Storage(Stores.filter(x => x.id == id))
           Behaviors.same
 
         }
@@ -69,7 +69,7 @@ object StoreApp {
       Directives.concat{
         Directives.get {
          // system ! "sesee"
-          auction.ask(GetById(ActorRef[StoreMessage],UUID.randomUUID()))
+         // auction.ask(GetById(ActorRef[StoreMessage],UUID.randomUUID()))
           complete(???)
         }
       }
