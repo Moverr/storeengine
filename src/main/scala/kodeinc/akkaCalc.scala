@@ -18,14 +18,32 @@ object akkaCalc {
 
   sealed trait Calculator
   case class add(a:Int,b:Int,response: ActorRef[Response]) extends Calculator
+  case class delete(a:Int,b:Int,response: ActorRef[Response]) extends Calculator
+  case class devide(a:Int,b:Int,response: ActorRef[Response]) extends Calculator
+  case class multiply(a:Int,b:Int,response: ActorRef[Response]) extends Calculator
 
   object   CalcA{
     def apply(): Behavior[Calculator] = Behaviors.receiveMessage{ msg =>
       msg match {
-        case add(a,b,response)=>{
+        case add(a, b, response)=>{
          val result = a+b
           response tell success(result.toString)
          Behaviors.same
+        }
+        case delete(a, b, response) => {
+          val result = a - b
+          response tell success(result.toString)
+          Behaviors.same
+        }
+        case devide(a, b, response) => {
+          val result = a / b
+          response tell success(result.toString)
+          Behaviors.same
+        }
+        case multiply(a, b, response) => {
+          val result = a * b
+          response tell success(result.toString)
+          Behaviors.same
         }
       }
 
@@ -36,8 +54,15 @@ object akkaCalc {
   object Main{
     def apply(values:calc):Behavior[Response]  = Behaviors.setup{ctx =>
       ctx.log.info("Entered")
-      val calcApp = ctx.spawn(CalcA(),"movevrs")
-      calcApp tell add(1,2,ctx.self)
+      val calcApp = ctx.spawn(CalcA(),"calculator_application")
+
+      values.option match {
+        case kodeinc.akkaCalc.calOptions.ADD =>  calcApp tell add(values.a,values.b,ctx.self)
+        case kodeinc.akkaCalc.calOptions.DELETE =>  calcApp tell delete(values.a,values.b,ctx.self)
+        case kodeinc.akkaCalc.calOptions.DEVIDE =>  calcApp tell devide(values.a,values.b,ctx.self)
+        case kodeinc.akkaCalc.calOptions.MULTIPLY =>  calcApp tell multiply(values.a,values.b,ctx.self)
+      }
+
       Behaviors.receiveMessage{ msg =>
         msg match {
           case error(errorCode, msg) =>{
@@ -51,7 +76,7 @@ object akkaCalc {
 
           }
           case _ => {
-            ctx.log.info("Interesting steps")
+            ctx.log.info("No Option Selectetd")
             Behaviors.same
           }
 
@@ -62,7 +87,15 @@ object akkaCalc {
   }
 
   def main(args: Array[String]): Unit = {
-    val ct = calc(12,34,calOptions.ADD);
-    val system=  ActorSystem(Main(ct),"Main");
+    val ct = calc(676,34,calOptions.DEVIDE);
+    val ct2 = calc(676,34,calOptions.ADD);
+    val ct3 = calc(676,34,calOptions.DELETE);
+    val ct4 = calc(676,34,calOptions.MULTIPLY);
+    ActorSystem(Main(ct),"Main")
+    ActorSystem(Main(ct2),"Main")
+    ActorSystem(Main(ct3),"Main")
+    ActorSystem(Main(ct4),"Main")
+
+
   }
 }
