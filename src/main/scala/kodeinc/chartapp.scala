@@ -4,11 +4,14 @@ import akka.NotUsed
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
 import akka.actor.typed.scaladsl.Behaviors
 
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 object chartapp {
 
   object ChatRoom{
     sealed trait RoomCommand
-    case class GetSession(screenNAme:String) extends RoomCommand
+    case class GetSession(screenNAme:String,client:ActorRef[SessionEvent]) extends RoomCommand
     case class PublishMessage(screenNAme:String,message:String) extends RoomCommand
 
     // so when u initialize the room command,sessions are empty.
@@ -16,8 +19,21 @@ object chartapp {
 
     def chatMeRoom(sessions:List[ActorRef[SessionCommand]]):Behavior[RoomCommand] =  Behaviors.receive{ (ctx,msg)=>
       msg match {
-        case GetSession(screenNAme) => ???
-        case PublishMessage(screenNAme, message) => ???
+        case GetSession(screenNAme,client) =>
+          val ses  = ctx.spawn(
+            session(ctx.self,screenNAme,client)
+            ,name=URLEncoder.encode(screenNAme,StandardCharsets.UTF_8.name
+            ))
+
+          client ! SessionGranted(ses)
+          chatMeRoom(ses ::sessions)
+
+        case PublishMessage(screenNAme, message) =>
+          val notification = NotifyClient(MessagePosted(screenNAme,message))
+          sessions.foreach( _! notification)
+            Behaviors.same
+
+
       }
     }
 
@@ -30,7 +46,11 @@ object chartapp {
     case class PostMessage(message:String) extends  SessionCommand
     case class NotifyClient(message:MessagePosted) extends  SessionCommand
 
-    def session():Behavior[SessionCommand] = Behaviors.receiveMessage{
+    def session(
+               room: ActorRef[PublishMessage]
+               ,screenName:String
+               ,client:ActorRef[SessionEvent]
+               ):Behavior[SessionCommand] = Behaviors.receiveMessage{
       ???
     }
 
